@@ -2,6 +2,7 @@ package repository
 
 import (
 	"google-login/entity"
+	"google-login/model"
 
 	"gorm.io/gorm"
 )
@@ -11,6 +12,7 @@ type IUserRepository interface {
 	FindByEmail(email string) (*entity.User, error)
 	CreateUserFromOAuth(user *entity.User) (*entity.User, error)
 	UpdateFromOAuth(user *entity.User) (*entity.User, error)
+	GetUser(param model.UserParam) (*entity.User, error)
 }
 
 type UserRepository struct {
@@ -57,4 +59,14 @@ func (r *UserRepository) UpdateFromOAuth(user *entity.User) (*entity.User, error
 	}
 
 	return user, nil
+}
+
+func (u *UserRepository) GetUser(param model.UserParam) (*entity.User, error) {
+	user := entity.User{}
+	err := u.db.Debug().Where(&param).First(&user).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return &user, nil
 }
