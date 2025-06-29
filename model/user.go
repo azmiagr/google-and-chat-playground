@@ -16,3 +16,10 @@ type OAuthCallbackRequest struct {
 	Code  string `json:"code"`
 	State string `json:"state"`
 }
+
+type UserParam struct {
+	UserID   int    `json:"-"`
+	Email    string `json:"-"`
+	Password string `json:"-"`
+	RoleID   int    `json:"-"`
+}
