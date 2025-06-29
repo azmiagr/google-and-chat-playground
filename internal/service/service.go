@@ -9,10 +9,12 @@ import (
 
 type Service struct {
 	OAuthService IOAuthService
+	UserService  IUserService
 }
 
 func NewService(repository *repository.Repository, bcrypt bcrypt.Interface, jwt jwt.Interface, oauth *config.OAuthConfig) *Service {
 	return &Service{
 		OAuthService: NewOAuthService(repository.UserRepository, bcrypt, jwt, oauth),
+		UserService:  NewUserService(repository.UserRepository),
 	}
 }
