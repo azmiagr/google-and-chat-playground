@@ -27,7 +27,6 @@ func (r *Rest) GoogleCallback(c *gin.Context) {
 	}
 	c.SetCookie("oauth_state", "", -1, "/", "", false, true)
 
-	// Get code dan state dari query params
 	code := c.Query("code")
 	state := c.Query("state")
 
@@ -36,7 +35,6 @@ func (r *Rest) GoogleCallback(c *gin.Context) {
 		return
 	}
 
-	// Handle callback
 	result, err := r.service.OAuthService.HandleGoogleCallback(code, state, savedState)
 	if err != nil {
 		response.Error(c, http.StatusInternalServerError, "OAuth callback failed", err)
