@@ -2,6 +2,7 @@ package rest
 
 import (
 	"fmt"
+	"google-login/internal/handler/websocket"
 	"google-login/internal/service"
 	"os"
 
@@ -9,14 +10,16 @@ import (
 )
 
 type Rest struct {
-	router  *gin.Engine
-	service *service.Service
+	router    *gin.Engine
+	service   *service.Service
+	websocket *websocket.WebSocketHandker
 }
 
-func NewRest(service *service.Service) *Rest {
+func NewRest(service *service.Service, wsHandler *websocket.WebSocketHandker) *Rest {
 	return &Rest{
-		router:  gin.Default(),
-		service: service,
+		router:    gin.Default(),
+		service:   service,
+		websocket: wsHandler,
 	}
 }
 
@@ -27,6 +30,7 @@ func (r *Rest) MountEndpoint() {
 	auth.GET("/google", r.GoogleLogin)
 	auth.GET("mangujo/callback/google", r.GoogleCallback)
 
+	routerGroup.GET("/ws", r.websocket.HandleWebSocket)
 }
 
 func (r *Rest) Run() {
