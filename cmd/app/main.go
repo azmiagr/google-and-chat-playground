@@ -2,6 +2,7 @@ package main
 
 import (
 	"google-login/internal/handler/rest"
+	"google-login/internal/handler/websocket"
 	"google-login/internal/repository"
 	"google-login/internal/service"
 	"google-login/pkg/bcrypt"
@@ -30,7 +31,12 @@ func main() {
 
 	svc := service.NewService(repo, bcrypt, jwt, oauth)
 
-	r := rest.NewRest(svc)
+	hub := websocket.NewHub()
+	go hub.Run()
+
+	wsHandler := websocket.NewWebSocketHandler(hub)
+
+	r := rest.NewRest(svc, wsHandler)
 	r.MountEndpoint()
 	r.Run()
 }
