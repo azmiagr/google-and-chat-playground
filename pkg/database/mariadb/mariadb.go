@@ -8,15 +8,18 @@ import (
 	"gorm.io/gorm/logger"
 )
 
+var Connection *gorm.DB
+
 func ConnectDatabase() (*gorm.DB, error) {
 	db, err := gorm.Open(mysql.Open(config.LoadDataSourceName()), &gorm.Config{
-		Logger: logger.Default.LogMode(logger.Silent),
+		Logger: logger.Default.LogMode(logger.Info),
 	})
 
 	if err != nil {
 		return nil, err
 	}
 
-	return db, nil
+	Connection = db
 
+	return Connection, nil
 }
