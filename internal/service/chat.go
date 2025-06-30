@@ -13,7 +13,7 @@ import (
 
 type IChatService interface {
 	GetMessagesByConversationID(convoID uuid.UUID) ([]*entity.Message, error)
-	SendMessage(param model.SendMessageInput) error
+	SendMessage(param model.SendMessageInput, convoID uuid.UUID) error
 	CreateConversation(param model.CreateConversationInput) error
 	GetConversationsByUser(userID int) ([]*entity.Conversation, error)
 }
@@ -62,13 +62,13 @@ func (s *ChatService) CreateConversation(param model.CreateConversationInput) er
 	return nil
 }
 
-func (s *ChatService) SendMessage(param model.SendMessageInput) error {
+func (s *ChatService) SendMessage(param model.SendMessageInput, convoID uuid.UUID) error {
 	tx := s.db.Begin()
 	defer tx.Rollback()
 
 	msg := &entity.Message{
 		MessageID:      uuid.New(),
-		ConversationID: param.ConversationID,
+		ConversationID: convoID,
 		UserID:         param.UserID,
 		Content:        param.Content,
 		CreatedAt:      time.Now(),
