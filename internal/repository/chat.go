@@ -52,7 +52,7 @@ func (r *ChatRepository) CreateParticipant(tx *gorm.DB, participant *entity.Part
 
 func (r *ChatRepository) GetMessagesByConversationID(convoID uuid.UUID) ([]*entity.Message, error) {
 	var messages []*entity.Message
-	err := r.db.Debug().
+	err := r.db.Debug().Preload("Conversation").
 		Where("conversation_id = ?", convoID).
 		Order("created_at asc").
 		Find(&messages).Error
