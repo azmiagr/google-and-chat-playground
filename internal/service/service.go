@@ -10,11 +10,13 @@ import (
 type Service struct {
 	OAuthService IOAuthService
 	UserService  IUserService
+	ChatService  IChatService
 }
 
 func NewService(repository *repository.Repository, bcrypt bcrypt.Interface, jwt jwt.Interface, oauth *config.OAuthConfig) *Service {
 	return &Service{
 		OAuthService: NewOAuthService(repository.UserRepository, bcrypt, jwt, oauth),
 		UserService:  NewUserService(repository.UserRepository),
+		ChatService:  NewChatService(repository.ChatRepository),
 	}
 }
