@@ -37,7 +37,7 @@ func (r *Rest) MountEndpoint() {
 	user.Use(r.middleware.AuthenticateUser)
 	user.GET("/get-messages/:convoID", r.GetMessagesByConversationID)
 	user.GET("/get-conversations", r.GetUserConversations)
-	user.POST("/messages", r.SendMessage)
+	user.POST("/messages/:convoID", r.SendMessage)
 	user.POST("/create-conversation", r.CreateConversation)
 
 	routerGroup.GET("/ws", r.websocket.HandleWebSocket)
