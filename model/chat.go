@@ -1,11 +1,8 @@
 package model
 
-import "github.com/google/uuid"
-
 type SendMessageInput struct {
-	ConversationID uuid.UUID `json:"conversation_id"`
-	UserID         int       `json:"user_id"`
-	Content        string    `json:"content"`
+	UserID  int    `json:"user_id"`
+	Content string `json:"content"`
 }
 
 type CreateConversationInput struct {
