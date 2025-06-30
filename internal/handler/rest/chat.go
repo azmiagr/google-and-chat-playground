@@ -11,8 +11,15 @@ import (
 )
 
 func (r *Rest) SendMessage(c *gin.Context) {
+	idStr := c.Param("convoID")
+	convoID, err := uuid.Parse(idStr)
+	if err != nil {
+		response.Error(c, http.StatusBadRequest, "invalid conversation id", err)
+		return
+	}
+
 	var param model.SendMessageInput
-	err := c.ShouldBindJSON(&param)
+	err = c.ShouldBindJSON(&param)
 	if err != nil {
 		response.Error(c, http.StatusBadRequest, "invalid input", err)
 		return
@@ -21,7 +28,7 @@ func (r *Rest) SendMessage(c *gin.Context) {
 	user := c.MustGet("user").(*entity.User)
 	param.UserID = user.UserID
 
-	err = r.service.ChatService.SendMessage(param)
+	err = r.service.ChatService.SendMessage(param, convoID)
 	if err != nil {
 		response.Error(c, http.StatusInternalServerError, "failed to send message", err)
 		return
