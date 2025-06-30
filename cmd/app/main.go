@@ -9,6 +9,7 @@ import (
 	"google-login/pkg/config"
 	"google-login/pkg/database/mariadb"
 	"google-login/pkg/jwt"
+	"google-login/pkg/middleware"
 	"log"
 )
 
@@ -35,8 +36,9 @@ func main() {
 	go hub.Run()
 
 	wsHandler := websocket.NewWebSocketHandler(hub)
+	middleware := middleware.Init(svc, jwt)
 
-	r := rest.NewRest(svc, wsHandler)
+	r := rest.NewRest(svc, wsHandler, middleware)
 	r.MountEndpoint()
 	r.Run()
 }
