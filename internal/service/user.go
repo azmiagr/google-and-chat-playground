@@ -25,6 +25,6 @@ func NewUserService(userRepository repository.IUserRepository) *UserService {
 	}
 }
 
-func (u *UserService) GetUser(param model.UserParam) (*entity.User, error) {
-	return u.UserRepository.GetUser(param)
+func (s *UserService) GetUser(param model.UserParam) (*entity.User, error) {
+	return s.UserRepository.GetUser(param)
 }
