@@ -12,7 +12,7 @@ import (
 )
 
 type IChatService interface {
-	GetMessagesByConversationID(convoID uuid.UUID) ([]*entity.Message, error)
+	GetMessagesByConversationID(convoID uuid.UUID) ([]*model.GetMessageResponse, error)
 	SendMessage(param model.SendMessageInput, convoID uuid.UUID) error
 	CreateConversation(param model.CreateConversationInput) error
 	GetConversationsByUser(userID int) ([]*entity.Conversation, error)
@@ -82,13 +82,25 @@ func (s *ChatService) SendMessage(param model.SendMessageInput, convoID uuid.UUI
 	return nil
 }
 
-func (s *ChatService) GetMessagesByConversationID(convoID uuid.UUID) ([]*entity.Message, error) {
+func (s *ChatService) GetMessagesByConversationID(convoID uuid.UUID) ([]*model.GetMessageResponse, error) {
+	var response []*model.GetMessageResponse
+
 	convos, err := s.ChatRepository.GetMessagesByConversationID(convoID)
 	if err != nil {
 		return nil, err
 	}
 
-	return convos, nil
+	for _, v := range convos {
+		response = append(response, &model.GetMessageResponse{
+			ConversationTitle: v.Conversation.Title,
+			MessageID:         v.MessageID,
+			SenderID:          v.UserID,
+			Content:           v.Content,
+			CreatedAt:         v.CreatedAt,
+		})
+	}
+
+	return response, nil
 }
 
 func (s *ChatService) GetConversationsByUser(userID int) ([]*entity.Conversation, error) {
