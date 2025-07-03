@@ -32,6 +32,8 @@ func (r *Rest) MountEndpoint() {
 	auth := routerGroup.Group("/auth")
 	auth.GET("/google", r.GoogleLogin)
 	auth.GET("mangujo/callback/google", r.GoogleCallback)
+	auth.POST("/register", r.Register)
+	auth.POST("/login", r.Login)
 
 	user := routerGroup.Group("/users")
 	user.Use(r.middleware.AuthenticateUser)
