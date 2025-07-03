@@ -10,8 +10,8 @@ import (
 type IUserRepository interface {
 	FindByGoogleID(googleID string) (*entity.User, error)
 	FindByEmail(email string) (*entity.User, error)
-	CreateUserFromOAuth(user *entity.User) (*entity.User, error)
-	UpdateFromOAuth(user *entity.User) (*entity.User, error)
+	CreateUserFromOAuth(tx *gorm.DB, user *entity.User) (*entity.User, error)
+	UpdateFromOAuth(tx *gorm.DB, user *entity.User) (*entity.User, error)
 	GetUser(param model.UserParam) (*entity.User, error)
 }
 
@@ -43,7 +43,7 @@ func (r *UserRepository) FindByEmail(email string) (*entity.User, error) {
 	return user, nil
 }
 
-func (r *UserRepository) CreateUserFromOAuth(user *entity.User) (*entity.User, error) {
+func (r *UserRepository) CreateUserFromOAuth(tx *gorm.DB, user *entity.User) (*entity.User, error) {
 	err := r.db.Create(&user).Error
 	if err != nil {
 		return nil, err
@@ -52,7 +52,7 @@ func (r *UserRepository) CreateUserFromOAuth(user *entity.User) (*entity.User, e
 	return user, nil
 }
 
-func (r *UserRepository) UpdateFromOAuth(user *entity.User) (*entity.User, error) {
+func (r *UserRepository) UpdateFromOAuth(tx *gorm.DB, user *entity.User) (*entity.User, error) {
 	err := r.db.Save(&user).Error
 	if err != nil {
 		return nil, err
