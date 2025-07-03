@@ -11,6 +11,7 @@ import (
 	"google-login/model"
 	"google-login/pkg/bcrypt"
 	"google-login/pkg/config"
+	"google-login/pkg/database/mariadb"
 	"google-login/pkg/jwt"
 	"io"
 	"net/http"
@@ -25,6 +26,7 @@ type IOAuthService interface {
 }
 
 type OAuthService struct {
+	db             *gorm.DB
 	UserRepository repository.IUserRepository
 	oauth          *config.OAuthConfig
 	bcrypt         bcrypt.Interface
@@ -33,6 +35,7 @@ type OAuthService struct {
 
 func NewOAuthService(userRepo repository.IUserRepository, bcrypt bcrypt.Interface, jwt jwt.Interface, oauth *config.OAuthConfig) IOAuthService {
 	return &OAuthService{
+		db:             mariadb.Connection,
 		UserRepository: userRepo,
 		bcrypt:         bcrypt,
 		jwtAuth:        jwt,
@@ -107,6 +110,9 @@ func (s *OAuthService) GetUserInfoFromGoogle(accessToken string) (*model.GoogleU
 }
 
 func (s *OAuthService) findOrCreateUser(googleUser *model.GoogleUserInfo) (*entity.User, error) {
+	tx := s.db.Begin()
+	defer tx.Rollback()
+
 	user, err := s.UserRepository.FindByGoogleID(googleUser.ID)
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, err
@@ -115,7 +121,7 @@ func (s *OAuthService) findOrCreateUser(googleUser *model.GoogleUserInfo) (*enti
 	if user != nil {
 		user.Name = googleUser.Name
 		user.Picture = &googleUser.Picture
-		_, err = s.UserRepository.UpdateFromOAuth(user)
+		_, err = s.UserRepository.UpdateFromOAuth(tx, user)
 		if err != nil {
 			return nil, err
 		}
@@ -130,7 +136,7 @@ func (s *OAuthService) findOrCreateUser(googleUser *model.GoogleUserInfo) (*enti
 	if existingUser != nil {
 		existingUser.GoogleID = &googleUser.ID
 		existingUser.Picture = &googleUser.Picture
-		_, err = s.UserRepository.UpdateFromOAuth(existingUser)
+		_, err = s.UserRepository.UpdateFromOAuth(tx, existingUser)
 		if err != nil {
 			return nil, err
 		}
@@ -145,7 +151,12 @@ func (s *OAuthService) findOrCreateUser(googleUser *model.GoogleUserInfo) (*enti
 		RoleID:   2,
 	}
 
-	_, err = s.UserRepository.CreateUserFromOAuth(newUser)
+	_, err = s.UserRepository.CreateUserFromOAuth(tx, newUser)
+	if err != nil {
+		return nil, err
+	}
+
+	err = tx.Commit().Error
 	if err != nil {
 		return nil, err
 	}
